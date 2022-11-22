@@ -412,6 +412,34 @@ if 0 and 'plot?':
     vals_ageSorted = sorted(timelineUniq_anyTimelineSamples_counts.items(),key=lambda x: int(x[0].split('-')[-1]))
     plot_keyVal_arr(vals_nSorted,title='number of TEs',xticksrotate_deg=90,separateTimelines=True)
     
+    ## Get most abundant TEs across all samples and per sample
+    TE_types_abus = {}
+    sample_TE_types_abus = {}
+    for sample,entries in timelineUniq_anyTimelineSamples.items():
+       for entry in entries:
+           TE = TE_idx_map[entry['TE_idx']]
+           for strint in ('1','2',):
+               TE_IDs = TE['TEs'+strint]
+               TE_IDs_filt = set()
+               for TE_ID in TE_IDs:
+                   TE_IDs_filt.add(TE_ID.split('{}')[0])
+
+               for TE_ID in TE_IDs_filt:
+                   init(TE_types_abus,TE_ID,0)
+                   TE_types_abus[TE_ID] += 1
+
+                   init(sample_TE_types_abus,sample,{})
+                   init(sample_TE_types_abus[sample],TE_ID,0)
+                   sample_TE_types_abus[sample][TE_ID] += 1
+
+    TE_types_abus_top20 = {}
+    for TE_ID,abu in sorted(TE_types_abus.items(),key=lambda x: x[1],reverse=True):
+        TE_types_abus_top20[TE_ID] = abu
+        if len(TE_types_abus_top20) >= 20:
+            break
+    ##/
+
+    
     if 0 and 'dump numbers to file':
         with open(output_dir+'/'+'TEs_abus.tsv','w') as nf:
             writeArr = ['sample','TE count']
